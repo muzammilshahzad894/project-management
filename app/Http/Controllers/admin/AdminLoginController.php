@@ -5,40 +5,51 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Exception;
 
 class AdminLoginController extends Controller
 {
     public function login(Request $request)
     {
-        if ($request->isMethod('post')) {
-            $request->validate([
-                'email' => 'required|email',
-                'password' => 'required|min:6'
-            ], [
-                'email.required' => 'Email is required',
-                'email.email' => 'Email is invalid',
-                'password.required' => 'Password is required',
-                'password.min' => 'Password must be at least 6 characters'
-            ]);
-
-            $data = $request->all();
-            if (Auth::attempt(['email' => $data['email'], 'password' => $data['password']])) {
-                if (Auth::user()->role == 'user') {
-                    Auth::logout();
-                    return redirect()->back()->with('error', 'Invalid Username or Password');
+        try {
+            if ($request->isMethod('post')) {
+                $request->validate([
+                    'email' => 'required|email',
+                    'password' => 'required|min:6'
+                ], [
+                    'email.required' => 'Email is required',
+                    'email.email' => 'Email is invalid',
+                    'password.required' => 'Password is required',
+                    'password.min' => 'Password must be at least 6 characters'
+                ]);
+    
+                $data = $request->all();
+                if (Auth::attempt(['email' => $data['email'], 'password' => $data['password']])) {
+                    if (Auth::user()->role == 'user') {
+                        Auth::logout();
+                        return redirect()->back()->with('error', 'Access denied');
+                    }
+                    return redirect()->route('admin.dashboard');
+                } else {
+                    return redirect()->back()->with('error', 'Invalid email or password');
                 }
-                return redirect()->route('admin.dashboard');
-            } else {
-                return redirect()->back()->with('error', 'Invalid email or password');
             }
+            return view('admin.auth.login');
+        } catch (Exception $e) {
+            Log::error(__CLASS__ . '::' . __LINE__ . ' ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Something went wrong');
         }
-
-        return view('admin.auth.login');
     }
 
     public function logout()
     {
-        Auth::logout();
-        return redirect()->route('admin.login');
+        try {
+            Auth::logout();
+            return redirect()->route('admin.login');
+        } catch (Exception $e) {
+            Log::error(__CLASS__ . '::' . __LINE__ . ' ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Something went wrong');
+        }
     }
 }
