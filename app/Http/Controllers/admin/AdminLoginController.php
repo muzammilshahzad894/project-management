@@ -37,7 +37,7 @@ class AdminLoginController extends Controller
             }
             return view('admin.auth.login');
         } catch (Exception $e) {
-            Log::error(__CLASS__ . '::' . __LINE__ . ' ' . $e->getMessage());
+            Log::error(__CLASS__ . '::' . __LINE__ . ' Exception: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Something went wrong');
         }
     }
@@ -48,7 +48,7 @@ class AdminLoginController extends Controller
             Auth::logout();
             return redirect()->route('admin.login');
         } catch (Exception $e) {
-            Log::error(__CLASS__ . '::' . __LINE__ . ' ' . $e->getMessage());
+            Log::error(__CLASS__ . '::' . __LINE__ . ' Exception: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Something went wrong');
         }
     }

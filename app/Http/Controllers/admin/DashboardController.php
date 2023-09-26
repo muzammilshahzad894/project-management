@@ -3,17 +3,28 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Exception;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        return redirect()->route('admin.dashboard');
+        try {
+            return redirect()->route('admin.dashboard');
+        } catch (Exception $e) {
+            Log::error(__CLASS__ . '::' . __LINE__ . ' Exception: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Something went wrong');
+        }
     }
 
     public function dashboard()
     {
-        return view('admin.index');
+        try {
+            return view('admin.index');
+        } catch (Exception $e) {
+            Log::error(__CLASS__ . '::' . __LINE__ . ' Exception: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Something went wrong');
+        }
     }
 }
